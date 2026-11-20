@@ -11,14 +11,4 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false } // Supabase impose SSL
 });
 
-// Test de connexion
-pool.query('SELECT NOW()')
-  .then(res => {
-    console.log('✅ Connecté à Supabase PostgreSQL:', res.rows[0]);
-  })
-  .catch(err => {
-    console.error('❌ Erreur de connexion DB:', err);
-    process.exit(1);
-  });
-
 export default pool;

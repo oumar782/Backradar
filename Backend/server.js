@@ -145,10 +145,11 @@ app.use((err, req, res, next) => {
 // ============================================
 // LANCEMENT DU SERVEUR
 // ============================================
-const PORT = process.env.PORT || 5000;
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`
+  app.listen(PORT, () => {
+    console.log(`
 ╔══════════════════════════════════════════════════════════════╗
 ║     🚀 SERVEUR Mon radar DÉMARRÉ AVEC SUCCÈS 🚀              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -160,12 +161,13 @@ app.listen(PORT, () => {
 🗄️  Base de données: ${process.env.DATABASE_URL ? "✅ CONNECTÉE" : "❌ NON CONNECTÉE"}
 `);
 
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("⚠️  ATTENTION: RESEND_API_KEY manquante - Les emails ne fonctionneront pas");
-  }
-  if (!process.env.DATABASE_URL) {
-    console.warn("⚠️  ATTENTION: DATABASE_URL manquante - La base de données ne fonctionnera pas");
-  }
-});
+    if (!process.env.RESEND_API_KEY) {
+      console.warn("⚠️  ATTENTION: RESEND_API_KEY manquante - Les emails ne fonctionneront pas");
+    }
+    if (!process.env.DATABASE_URL) {
+      console.warn("⚠️  ATTENTION: DATABASE_URL manquante - La base de données ne fonctionnera pas");
+    }
+  });
+}
 
 export default app;
