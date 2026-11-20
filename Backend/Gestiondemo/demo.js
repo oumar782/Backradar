@@ -1,6 +1,5 @@
 import express from 'express';
-import { v4 as uuidv4 } from 'uuid';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import db from '../db.js';
 import { persistSale } from '../sales.js';
 
@@ -38,7 +37,7 @@ const checkDemoAccess = async (req, res, next) => {
 router.post('/demo/start', async (req, res, next) => {
     let deviceId = getCookie(req, DEVICE_COOKIE);
     const isNewDevice = !deviceId;
-    if (isNewDevice) deviceId = uuidv4();
+    if (isNewDevice) deviceId = randomUUID();
 
     const deviceHash = hashIdentifier(deviceId);
     const existing = await db.query(
@@ -54,7 +53,7 @@ router.post('/demo/start', async (req, res, next) => {
         });
     }
 
-    const token = uuidv4();
+    const token = randomUUID();
     const client = await db.connect();
     try {
         await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ');
@@ -460,7 +459,6 @@ router.get('/analytics/complete', checkDemoAccess, async (req, res) => {
                 COUNT(CASE WHEN si.discount_amount > 0 THEN 1 END) as nb_discounted_sales,
                 ROUND(AVG(CASE WHEN si.discount_amount > 0 THEN si.discount_amount ELSE NULL END)::numeric, 2) as avg_discount,
                 ROUND(SUM(si.discount_amount) / NULLIF(SUM(si.quantity * si.unit_price), 0) * 100, 2) as discount_rate_pct,
-                -- Coût des invendus (stock mort)
                 (SELECT COALESCE(SUM(ABS(quantity_delta) * unit_cost), 0) FROM stock_movements WHERE store_id = $1 AND movement_type = 'loss') as inventory_loss_cost
             FROM sale_items si
             JOIN sales s ON s.id = si.sale_id AND s.store_id = si.store_id AND s.status = 'completed'
